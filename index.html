@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<head>
+  <script src="gunzip.min.js"></script>
+  <script src="ids.js"></script>
+  <script src="nbt.js"></script>
+  <script src="main.js"></script>
+</head>
+
+<body>
+  <h1>MC Schematic to /fill commands.</h1>
+  <p>This is mostly broken, do not use.</p>
+  <input type="file" id="schematicfile">
+  <button onclick="parseSchematic(document.getElementById('schematicfile'))">Convert!</button>
+  <h2>Parsed:</h2>
+  <p>Note some byteArrays for blocks and such will be uint8 not int8 as they are shown here.</p>
+  <pre style="height: 500px; overflow: scroll;"><code id=parsedblock>{}</code></pre>
+  <h2>Fill commands:</h2>
+  <pre style="height: 500px; overflow: scroll;"><code id=fillcommandsblock>{}</code></pre>
+</body>
