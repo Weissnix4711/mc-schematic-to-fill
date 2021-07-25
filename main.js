@@ -12,6 +12,7 @@ function parseSchematic(file) {
   });
 };
 
+// calculate coords of a block from its index
 function calculateCoords(index, length, width, height) {
   console.log(`i: ${index} l: ${length} w: ${width} h: ${height}`)
   blocksPerY = length * width;
@@ -23,12 +24,14 @@ function calculateCoords(index, length, width, height) {
   return coords;
 }
 
+// get item name from its id
 function getNameFromID(id) {
   return ids.find(
     element => { return element.type == id; }
   ).text_type;
 }
 
+// takes array of block ids and converts it to a series of fill commands
 function blockArrayToFillCommands(data) {
   const length = data.Length.value;
   const width = data.Width.value;
@@ -40,18 +43,25 @@ function blockArrayToFillCommands(data) {
   for (var i = 0; i < data.Blocks.value.length; i++) {
     thisBlockId = data.Blocks.value[i];
     indexDifference = i - lastBlockIndex;
+
+    // has to be done in case end of length is reached and must wrap arround
     if ((thisBlockId !== lastBlockId) || (indexDifference + (Math.floor(i / width)) >= width)) {
+      // coords of first block of same-block section
       let fromCoords = '~' + calculateCoords(lastBlockIndex, length, width, height).join(' ~');
       //let toCoords = [];
+      // coords of current block (first block which is different)
       let toCoords = calculateCoords(i, length, width, height);
+      // hence take off one (we want the previous block)
       toCoords[2] -= 1;
       toCoords = '~' + toCoords.join(' ~');
       //toNoOfBlocks = i - lastBlockIndex;
       //toCoords[0] = Math.floor(toNoOfBlocks / width) * width; // x
 
       console.log(`iteration: ${i} diff: ${indexDifference} fromCoords: ${fromCoords} toCoords: ${toCoords} lastBlockId: ${lastBlockId & 0xff} thisid: ${thisBlockId}`)
+      // add command to array
       fillCommands.push(`fill ${fromCoords} ${toCoords} ${getNameFromID(lastBlockId & 0xff)}`);
 
+      // reset lastblock
       lastBlockIndex = i;
       lastBlockId = thisBlockId;
     }
