@@ -16,9 +16,10 @@ function parseSchematic(file) {
 function calculateCoords(index, length, width, height) {
   console.log(`i: ${index} l: ${length} w: ${width} h: ${height}`)
   blocksPerY = length * width;
+  console.log(blocksPerY)
   coordY = Math.floor(index / blocksPerY);
-  coordZ = Math.floor((index - (coordY * blocksPerY)) / length);
-  coordX = Math.floor(((index - (coordY * blocksPerY)) - (coordZ * length)));
+  coordZ = Math.floor((index - (coordY * blocksPerY)) / width);
+  coordX = Math.floor(((index - (coordY * blocksPerY)) - (coordZ * width)));
   coords = [coordX, coordY, coordZ];
   console.log(coords);
   return coords;
@@ -33,9 +34,9 @@ function getNameFromID(id) {
 
 // takes array of block ids and converts it to a series of fill commands
 function blockArrayToFillCommands(data) {
-  const length = data.Length.value;
-  const width = data.Width.value;
-  const height = data.Height.value;
+  const length = data.Length.value; // maximum z val
+  const width = data.Width.value; // maximum x val
+  const height = data.Height.value; // maximum y val
   let fillCommands = [];
   let lastBlockIndex = 0;
   let lastBlockId = data.Blocks.value[0];
@@ -43,19 +44,15 @@ function blockArrayToFillCommands(data) {
   for (var i = 0; i < data.Blocks.value.length; i++) {
     thisBlockId = data.Blocks.value[i];
     indexDifference = i - lastBlockIndex;
+    console.log(indexDifference)
 
     // has to be done in case end of length is reached and must wrap arround
-    if ((thisBlockId !== lastBlockId) || (indexDifference + (Math.floor(i / width)) >= width)) {
+    if ((thisBlockId !== lastBlockId) || (indexDifference + calculateCoords(lastBlockIndex, length, width, height)[0] >= width)) { // w + 1
       // coords of first block of same-block section
       let fromCoords = '~' + calculateCoords(lastBlockIndex, length, width, height).join(' ~');
-      //let toCoords = [];
       // coords of current block (first block which is different)
-      let toCoords = calculateCoords(i, length, width, height);
-      // hence take off one (we want the previous block)
-      toCoords[2] -= 1;
+      let toCoords = calculateCoords(i - 1, length, width, height);
       toCoords = '~' + toCoords.join(' ~');
-      //toNoOfBlocks = i - lastBlockIndex;
-      //toCoords[0] = Math.floor(toNoOfBlocks / width) * width; // x
 
       console.log(`iteration: ${i} diff: ${indexDifference} fromCoords: ${fromCoords} toCoords: ${toCoords} lastBlockId: ${lastBlockId & 0xff} thisid: ${thisBlockId}`)
       // add command to array
